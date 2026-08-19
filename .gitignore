@@ -1,0 +1,13 @@
+# VS Code
+.vscode/
+
+# Spring Boot / Maven
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Local database configuration
+backend/src/main/resources/application.properties
+
+# Environment / secrets
+.env
+*.env
