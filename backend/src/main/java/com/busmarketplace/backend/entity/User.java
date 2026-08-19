@@ -28,10 +28,15 @@ public class User {
     @Column(nullable = false, length = 20)
     private String role;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+@Column(name = "created_at", nullable = false)
+private LocalDateTime createdAt;
 
-    public User() {
+@PrePersist
+protected void onCreate() {
+    createdAt = LocalDateTime.now();
+}
+
+public User() {
     }
 
     public Long getUserId() {
