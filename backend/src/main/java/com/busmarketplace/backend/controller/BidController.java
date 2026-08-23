@@ -5,6 +5,7 @@ import com.busmarketplace.backend.repository.TripRequestRepository;
 import com.busmarketplace.backend.entity.Bid;
 import com.busmarketplace.backend.repository.BidRepository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,10 +28,12 @@ public class BidController {
     }
 
     @GetMapping("/{id}")
-    public Bid getBidById(@PathVariable Long id) {
+    public ResponseEntity<Bid> getBidById(@PathVariable Long id) {
         return bidRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Bid not found"));
+            .map(ResponseEntity::ok)
+            .orElseGet(() -> ResponseEntity.notFound().build());
     }
+    
 
     @PostMapping
     public Bid createBid(@RequestBody Bid bid) {

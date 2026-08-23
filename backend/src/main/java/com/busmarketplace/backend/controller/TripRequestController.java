@@ -3,6 +3,7 @@ package com.busmarketplace.backend.controller;
 import com.busmarketplace.backend.entity.TripRequest;
 import com.busmarketplace.backend.repository.TripRequestRepository;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -22,8 +23,10 @@ public class TripRequestController {
     }
 
     @GetMapping("/{id}")
-    public TripRequest getTripRequestById(@PathVariable Long id) {
-        return tripRequestRepository.findById(id).orElse(null);
+    public ResponseEntity<TripRequest> getTripRequestById(@PathVariable Long id) {
+        return tripRequestRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping

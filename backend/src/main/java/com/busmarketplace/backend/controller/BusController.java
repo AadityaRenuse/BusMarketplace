@@ -2,6 +2,8 @@ package com.busmarketplace.backend.controller;
 
 import com.busmarketplace.backend.entity.Bus;
 import com.busmarketplace.backend.repository.BusRepository;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,8 +24,10 @@ public class BusController {
     }
 
     @GetMapping("/{id}")
-    public Bus getBusById(@PathVariable Long id) {
-        return busRepository.findById(id).orElse(null);
+    public ResponseEntity<Bus> getBusById(@PathVariable Long id) {
+        return busRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
