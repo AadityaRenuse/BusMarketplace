@@ -30,4 +30,24 @@ public class UserController {
     public User createUser(@RequestBody User user) {
         return userRepository.save(user);
     }
+    @PutMapping("/{id}")
+public User updateUser(@PathVariable Long id, @RequestBody User updatedUser) {
+    User existingUser = userRepository.findById(id).orElse(null);
+
+    if (existingUser == null) {
+        return null;
+    }
+
+    existingUser.setName(updatedUser.getName());
+    existingUser.setEmail(updatedUser.getEmail());
+    existingUser.setPhone(updatedUser.getPhone());
+    existingUser.setRole(updatedUser.getRole());
+    existingUser.setPasswordHash(updatedUser.getPasswordHash());
+
+    return userRepository.save(existingUser);
+}
+    @DeleteMapping("/{id}")
+public void deleteUser(@PathVariable Long id) {
+    userRepository.deleteById(id);
+}
 }
