@@ -1,0 +1,109 @@
+.post-trip-page {
+  min-height: calc(100vh - 76px);
+  padding: 70px 7%;
+  background: #f7f8fc;
+}
+
+.post-trip-container {
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+.post-trip-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.post-trip-header h1 {
+  margin: 0 0 15px;
+  font-size: 42px;
+}
+
+.post-trip-header p:last-child {
+  color: #687386;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.trip-form {
+  padding: 40px;
+  background: white;
+  border: 1px solid #e7eaf0;
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(30, 50, 90, 0.08);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 22px;
+}
+
+.form-group label {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #d9dee8;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 15px;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #2563eb;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.submit-trip-btn {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 9px;
+  background: #2563eb;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.submit-trip-btn:hover {
+  background: #1d4ed8;
+}
+
+.form-message {
+  margin: 18px 0 0;
+  text-align: center;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .trip-form {
+    padding: 25px;
+  }
+
+  .post-trip-header h1 {
+    font-size: 34px;
+  }
+}

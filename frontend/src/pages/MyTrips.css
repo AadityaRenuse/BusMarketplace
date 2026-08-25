@@ -1,0 +1,158 @@
+.my-trips-page {
+  min-height: calc(100vh - 76px);
+  padding: 70px 7%;
+  background: #f7f8fc;
+}
+
+.my-trips-header {
+  max-width: 700px;
+  margin: 0 auto 50px;
+  text-align: center;
+}
+
+.my-trips-header h1 {
+  margin: 0 0 15px;
+  font-size: 42px;
+}
+
+.my-trips-header p:last-child {
+  color: #687386;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.trips-message {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  text-align: center;
+  background: white;
+  border: 1px solid #e7eaf0;
+  border-radius: 12px;
+  color: #687386;
+}
+
+.trips-message.error {
+  color: #dc2626;
+}
+
+.trips-list {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.trip-card {
+  padding: 30px;
+  background: white;
+  border: 1px solid #e7eaf0;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(30, 50, 90, 0.07);
+}
+
+.trip-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.trip-id {
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.trip-card h2 {
+  margin: 8px 0 25px;
+  font-size: 25px;
+}
+
+.trip-status {
+  padding: 7px 13px;
+  border-radius: 20px;
+  background: #eaf1ff;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.trip-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.trip-info div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 15px;
+  background: #f7f8fc;
+  border-radius: 8px;
+}
+
+.trip-info span,
+.trip-requirements span {
+  color: #7a8393;
+  font-size: 12px;
+}
+
+.trip-info strong {
+  font-size: 14px;
+}
+
+.trip-requirements {
+  padding: 15px;
+  background: #f7f8fc;
+  border-radius: 8px;
+}
+
+.trip-requirements p {
+  margin: 7px 0 0;
+  color: #4b5563;
+  font-size: 14px;
+}
+
+.trip-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.trip-actions button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.view-trip-btn {
+  border: 1px solid #d9dee8;
+  background: white;
+  color: #2563eb;
+}
+
+.view-bids-btn {
+  border: none;
+  background: #2563eb;
+  color: white;
+}
+
+@media (max-width: 700px) {
+  .trip-card-top {
+    flex-direction: column;
+  }
+
+  .trip-info {
+    grid-template-columns: 1fr;
+  }
+
+  .trip-actions {
+    flex-direction: column;
+  }
+}
