@@ -314,3 +314,18 @@ footer p {
     align-items: flex-start;
   }
 }
+
+.nav-link-button {
+  border: none;
+  background: transparent;
+  color: #596273;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
+
+.nav-link-button:hover {
+  color: #2563eb;
+}

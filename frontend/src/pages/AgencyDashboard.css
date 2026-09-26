@@ -1,0 +1,327 @@
+.agency-dashboard {
+  min-height: calc(100vh - 76px);
+  padding: 70px 7%;
+  background: #f7f8fc;
+}
+
+.agency-header {
+  max-width: 700px;
+  margin: 0 auto 50px;
+  text-align: center;
+}
+
+.agency-header h1 {
+  margin: 0 0 15px;
+  font-size: 42px;
+}
+
+.agency-header p:last-child {
+  color: #687386;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.agency-message {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  text-align: center;
+  background: white;
+  border: 1px solid #e7eaf0;
+  border-radius: 12px;
+  color: #687386;
+}
+
+.agency-message.error {
+  color: #dc2626;
+}
+
+.agency-trip-grid {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+}
+
+.agency-trip-card {
+  padding: 28px;
+  background: white;
+  border: 1px solid #e7eaf0;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(30, 50, 90, 0.07);
+}
+
+.agency-trip-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.trip-id {
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.agency-trip-card h2 {
+  margin: 7px 0 25px;
+  font-size: 23px;
+}
+
+.open-status {
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.agency-trip-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.agency-trip-info div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 13px;
+  background: #f7f8fc;
+  border-radius: 8px;
+}
+
+.agency-trip-info span,
+.requirements span {
+  color: #7a8393;
+  font-size: 12px;
+}
+
+.agency-trip-info strong {
+  font-size: 13px;
+}
+
+.requirements {
+  padding: 15px;
+  margin-bottom: 20px;
+  background: #f7f8fc;
+  border-radius: 8px;
+}
+
+.requirements p {
+  margin: 7px 0 0;
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.submit-bid-btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.submit-bid-btn:hover {
+  background: #1d4ed8;
+}
+
+@media (max-width: 700px) {
+  .agency-trip-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .agency-trip-info {
+    grid-template-columns: 1fr;
+  }
+
+  .agency-trip-header {
+    flex-direction: column;
+  }
+}
+
+
+/* ========================= */
+/* Dashboard Navigation */
+/* ========================= */
+
+.agency-dashboard-nav {
+  max-width: 1000px;
+  margin: 0 auto 35px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.dashboard-nav-btn {
+  padding: 12px 24px;
+  border: 1px solid #d9deea;
+  border-radius: 8px;
+  background: white;
+  color: #4b5563;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dashboard-nav-btn:hover {
+  background: #f1f5f9;
+}
+
+.dashboard-nav-btn.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+
+/* ========================= */
+/* My Bids */
+/* ========================= */
+
+.my-bids-header {
+  max-width: 1000px;
+  margin: 0 auto 25px;
+}
+
+.my-bids-header h2 {
+  margin: 0 0 6px;
+  font-size: 28px;
+}
+
+.my-bids-header p {
+  margin: 0;
+  color: #687386;
+}
+
+
+.agency-bids-grid {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+}
+
+
+.agency-bid-card {
+  padding: 28px;
+  background: white;
+  border: 1px solid #e7eaf0;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(30, 50, 90, 0.07);
+}
+
+
+.agency-bid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+
+.agency-bid-card h2 {
+  margin: 7px 0 25px;
+  font-size: 23px;
+}
+
+
+/* ========================= */
+/* Bid Status */
+/* ========================= */
+
+.bid-status {
+  padding: 7px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+
+.bid-status.pending {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+
+.bid-status.accepted {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+
+.bid-status.rejected {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+
+/* ========================= */
+/* Bid Information */
+/* ========================= */
+
+.agency-bid-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+
+.agency-bid-info div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 13px;
+  background: #f7f8fc;
+  border-radius: 8px;
+}
+
+
+.agency-bid-info span {
+  color: #7a8393;
+  font-size: 12px;
+}
+
+
+.agency-bid-info strong {
+  font-size: 13px;
+}
+
+
+/* ========================= */
+/* Mobile */
+/* ========================= */
+
+@media (max-width: 700px) {
+
+  .agency-dashboard-nav {
+    flex-direction: column;
+  }
+
+  .dashboard-nav-btn {
+    width: 100%;
+  }
+
+  .agency-bids-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .agency-bid-info {
+    grid-template-columns: 1fr;
+  }
+
+  .agency-bid-header {
+    flex-direction: column;
+  }
+
+}
+

@@ -3,7 +3,6 @@ import "./PostTrip.css";
 
 function PostTrip() {
   const [formData, setFormData] = useState({
-    customerId: 1,
     pickupLocation: "",
     destination: "",
     startDate: "",
@@ -26,6 +25,13 @@ function PostTrip() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setMessage("Please login to post a trip.");
+      return;
+    }
+
     setMessage("Posting your trip...");
 
     try {
@@ -35,9 +41,9 @@ function PostTrip() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            customerId: Number(formData.customerId),
             pickupLocation: formData.pickupLocation,
             destination: formData.destination,
             startDate: formData.startDate,
@@ -60,7 +66,6 @@ function PostTrip() {
       );
 
       setFormData({
-        customerId: 1,
         pickupLocation: "",
         destination: "",
         startDate: "",

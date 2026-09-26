@@ -3,10 +3,17 @@ package com.busmarketplace.backend.controller;
 import com.busmarketplace.backend.entity.Bid;
 import com.busmarketplace.backend.entity.Booking;
 import com.busmarketplace.backend.entity.TripRequest;
+import com.busmarketplace.backend.entity.User;
+import com.busmarketplace.backend.entity.Agency;
+
 import com.busmarketplace.backend.repository.BidRepository;
 import com.busmarketplace.backend.repository.BookingRepository;
 import com.busmarketplace.backend.repository.TripRequestRepository;
+import com.busmarketplace.backend.repository.UserRepository;
+import com.busmarketplace.backend.repository.AgencyRepository;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -20,15 +27,21 @@ public class BidController {
     private final BidRepository bidRepository;
     private final TripRequestRepository tripRequestRepository;
     private final BookingRepository bookingRepository;
+    private final UserRepository userRepository;
+    private final AgencyRepository agencyRepository;
 
     public BidController(
             BidRepository bidRepository,
             TripRequestRepository tripRequestRepository,
-            BookingRepository bookingRepository) {
+            BookingRepository bookingRepository,
+            UserRepository userRepository,
+            AgencyRepository agencyRepository) {
 
         this.bidRepository = bidRepository;
         this.tripRequestRepository = tripRequestRepository;
         this.bookingRepository = bookingRepository;
+        this.userRepository = userRepository;
+        this.agencyRepository = agencyRepository;
     }
 
     @GetMapping
@@ -43,8 +56,136 @@ public class BidController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/my")
+public ResponseEntity<?> getMyBids(
+        Authentication authentication) {
+
+    String email = authentication.getName();
+
+    User user = userRepository.findByEmail(email).orElse(null);
+
+    if (user == null) {
+        return ResponseEntity.status(401)
+                .body("User not found");
+    }
+
+    if (!"AGENCY".equalsIgnoreCase(user.getRole())) {
+        return ResponseEntity.status(403)
+                .body("Only agencies can view agency bids");
+    }
+
+    Agency agency = agencyRepository
+            .findByUserId(user.getUserId())
+            .orElse(null);
+
+    if (agency == null) {
+        return ResponseEntity.status(404)
+                .body("Agency profile not found");
+    }
+
+    return ResponseEntity.ok(
+            bidRepository.findByAgencyId(agency.getAgencyId())
+    );
+}
+
+    @GetMapping("/my-trip/{tripRequestId}")
+    public ResponseEntity<?> getMyTripBids(
+            @PathVariable Long tripRequestId,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(401)
+                    .body("User not found");
+        }
+
+        TripRequest tripRequest = tripRequestRepository
+                .findById(tripRequestId)
+                .orElse(null);
+
+        if (tripRequest == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!tripRequest.getCustomerId().equals(user.getUserId())) {
+            return ResponseEntity.status(403)
+                    .body("You are not allowed to view bids for this trip");
+        }
+
+        return ResponseEntity.ok(
+                bidRepository.findByTripRequestId(tripRequestId)
+        );
+    }
+
+    /*
+     * CREATE BID
+     *
+     * The agency ID is now determined from the
+     * currently logged-in agency account.
+     */
     @PostMapping
-    public Bid createBid(@RequestBody Bid bid) {
+    public ResponseEntity<?> createBid(
+            @RequestBody Bid bid,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(401)
+                    .body("User not found");
+        }
+
+        /*
+         * Only agency users can submit bids.
+         */
+        if (!"AGENCY".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.status(403)
+                    .body("Only agencies can submit bids");
+        }
+
+        /*
+         * Find the agency belonging to the logged-in user.
+         */
+        Agency agency = agencyRepository
+                .findByUserId(user.getUserId())
+                .orElse(null);
+
+        if (agency == null) {
+            return ResponseEntity.status(404)
+                    .body("Agency profile not found");
+        }
+
+        /*
+         * Make sure the trip exists.
+         */
+        TripRequest tripRequest = tripRequestRepository
+                .findById(bid.getTripRequestId())
+                .orElse(null);
+
+        if (tripRequest == null) {
+            return ResponseEntity.status(404)
+                    .body("Trip request not found");
+        }
+
+        /*
+         * Only OPEN trips can receive bids.
+         */
+        if (!"OPEN".equalsIgnoreCase(tripRequest.getStatus())) {
+            return ResponseEntity.badRequest()
+                    .body("This trip is no longer accepting bids");
+        }
+
+        /*
+         * IMPORTANT:
+         * Never trust agencyId sent by the frontend.
+         * Use the agency connected to the logged-in user.
+         */
+        bid.setAgencyId(agency.getAgencyId());
 
         bid.setCreatedAt(LocalDateTime.now());
 
@@ -52,37 +193,41 @@ public class BidController {
             bid.setStatus("PENDING");
         }
 
-        return bidRepository.save(bid);
+        Bid savedBid = bidRepository.save(bid);
+
+        return ResponseEntity.ok(savedBid);
     }
 
     @PutMapping("/{id}")
-    public Bid updateBid(
+    public ResponseEntity<?> updateBid(
             @PathVariable Long id,
-            @RequestBody Bid updatedBid) {
+            @RequestBody Bid updatedBid,
+            Authentication authentication) {
 
         Bid bid = bidRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bid not found"));
 
-        bid.setTripRequestId(updatedBid.getTripRequestId());
-        bid.setAgencyId(updatedBid.getAgencyId());
-        bid.setBusId(updatedBid.getBusId());
-        bid.setAmount(updatedBid.getAmount());
-        bid.setMessage(updatedBid.getMessage());
-        bid.setStatus(updatedBid.getStatus());
-
-        /*
-         * ACCEPT BID
-         */
         if ("ACCEPTED".equalsIgnoreCase(updatedBid.getStatus())) {
+
+            String email = authentication.getName();
+
+            User user = userRepository.findByEmail(email).orElse(null);
+
+            if (user == null) {
+                return ResponseEntity.status(401)
+                        .body("User not found");
+            }
 
             TripRequest tripRequest = tripRequestRepository
                     .findById(bid.getTripRequestId())
                     .orElseThrow(() ->
                             new RuntimeException("Trip request not found"));
 
-            /*
-             * Make sure this trip has not already been booked.
-             */
+            if (!tripRequest.getCustomerId().equals(user.getUserId())) {
+                return ResponseEntity.status(403)
+                        .body("You are not allowed to accept bids for this trip");
+            }
+
             if ("BOOKED".equalsIgnoreCase(tripRequest.getStatus())) {
 
                 Bid existingAcceptedBid = bidRepository.findAll()
@@ -99,8 +244,8 @@ public class BidController {
                         .orElse(null);
 
                 if (existingAcceptedBid != null) {
-                    throw new RuntimeException(
-                            "A bid has already been accepted for this trip");
+                    return ResponseEntity.badRequest()
+                            .body("A bid has already been accepted for this trip");
                 }
             }
 
@@ -151,7 +296,14 @@ public class BidController {
             bookingRepository.save(booking);
         }
 
-        return bidRepository.save(bid);
+        bid.setTripRequestId(updatedBid.getTripRequestId());
+        bid.setAgencyId(updatedBid.getAgencyId());
+        bid.setBusId(updatedBid.getBusId());
+        bid.setAmount(updatedBid.getAmount());
+        bid.setMessage(updatedBid.getMessage());
+        bid.setStatus(updatedBid.getStatus());
+
+        return ResponseEntity.ok(bidRepository.save(bid));
     }
 
     @DeleteMapping("/{id}")

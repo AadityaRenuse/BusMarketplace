@@ -7,21 +7,28 @@ function MyTrips({ onViewBids }) {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/trip-requests")
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setMessage("Please login to view your trips.");
+      setLoading(false);
+      return;
+    }
+
+    fetch("http://localhost:8080/api/trip-requests/my", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Failed to fetch trips");
+          throw new Error("Failed to fetch your trips");
         }
 
         return response.json();
       })
       .then((data) => {
-        // Show trips belonging to customer 1
-        const customerTrips = data.filter(
-          (trip) => trip.customerId === 1
-        );
-
-        setTrips(customerTrips);
+        setTrips(data);
         setLoading(false);
       })
       .catch((error) => {
@@ -113,7 +120,7 @@ function MyTrips({ onViewBids }) {
 
             <button
               className="view-bids-btn"
-              onClick={() => onViewBids(trip.tripRequestId)}
+              onClick={() => onViewBids(trip.tripRequestId, trip.status)}
             >
               View Bids
             </button>

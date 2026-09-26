@@ -1,16 +1,41 @@
 import { useState } from "react";
 import "./App.css";
+
 import PostTrip from "./pages/PostTrip";
 import FindBus from "./pages/FindBus";
 import MyTrips from "./pages/MyTrips";
 import ViewBids from "./pages/ViewBids";
+import MyBookings from "./pages/MyBookings";
+import AgencyDashboard from "./pages/AgencyDashboard";
+import Login from "./pages/Login";
 
 function App() {
   const [page, setPage] = useState("home");
   const [selectedTripId, setSelectedTripId] = useState(null);
+  const [selectedTripStatus, setSelectedTripStatus] = useState(null);
 
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
 
-    if (page === "view-bids") {
+    return savedUser
+      ? JSON.parse(savedUser)
+      : null;
+  });
+
+  // LOGIN PAGE
+  if (page === "login") {
+    return (
+      <Login
+        onLogin={(loggedInUser) => {
+          setUser(loggedInUser);
+          setPage("home");
+        }}
+      />
+    );
+  }
+
+  // VIEW BIDS
+  if (page === "view-bids") {
     return (
       <div>
         <nav className="navbar">
@@ -28,60 +53,86 @@ function App() {
 
         <ViewBids
           tripRequestId={selectedTripId}
+          tripStatus={selectedTripStatus}
           onBack={() => setPage("my-trips")}
         />
       </div>
     );
   }
-  
 
+  // FIND BUS
   if (page === "find-bus") {
-  return (
-    <div>
-      <nav className="navbar">
-        <div className="logo">
-          Bus<span>Market</span>
-        </div>
+    return (
+      <div>
+        <nav className="navbar">
+          <div className="logo">
+            Bus<span>Market</span>
+          </div>
 
-        <button
-          className="login-btn"
-          onClick={() => setPage("home")}
-        >
-          ← Back Home
-        </button>
-      </nav>
+          <button
+            className="login-btn"
+            onClick={() => setPage("home")}
+          >
+            ← Back Home
+          </button>
+        </nav>
 
-      <FindBus />
-    </div>
-  );
-}
+        <FindBus />
+      </div>
+    );
+  }
 
-if (page === "my-trips") {
-  return (
-    <div>
-      <nav className="navbar">
-        <div className="logo">
-          Bus<span>Market</span>
-        </div>
+  // MY TRIPS
+  if (page === "my-trips") {
+    return (
+      <div>
+        <nav className="navbar">
+          <div className="logo">
+            Bus<span>Market</span>
+          </div>
 
-        <button
-          className="login-btn"
-          onClick={() => setPage("home")}
-        >
-          ← Back Home
-        </button>
-      </nav>
+          <button
+            className="login-btn"
+            onClick={() => setPage("home")}
+          >
+            ← Back Home
+          </button>
+        </nav>
 
         <MyTrips
-          onViewBids={(tripId) => {
+          onViewBids={(tripId, status) => {
             setSelectedTripId(tripId);
+            setSelectedTripStatus(status);
             setPage("view-bids");
           }}
         />
-    </div>
-  );
-}
+      </div>
+    );
+  }
 
+  // MY BOOKINGS
+  if (page === "my-bookings") {
+    return (
+      <div>
+        <nav className="navbar">
+          <div className="logo">
+            Bus<span>Market</span>
+          </div>
+
+          <button
+            className="login-btn"
+            onClick={() => setPage("home")}
+          >
+            ← Back Home
+          </button>
+        </nav>
+
+        <MyBookings />
+      </div>
+    );
+  }
+
+  // POST TRIP
   if (page === "post-trip") {
     return (
       <div>
@@ -103,36 +154,99 @@ if (page === "my-trips") {
     );
   }
 
+  // AGENCY DASHBOARD
+  if (page === "agency-dashboard") {
+    return (
+      <div>
+        <nav className="navbar">
+          <div className="logo">
+            Bus<span>Market</span>
+          </div>
+
+          <button
+            className="login-btn"
+            onClick={() => setPage("home")}
+          >
+            ← Back Home
+          </button>
+        </nav>
+
+        <AgencyDashboard />
+      </div>
+    );
+  }
+
+  // HOME PAGE
   return (
     <div className="app">
+
       <nav className="navbar">
+
         <div className="logo">
           Bus<span>Market</span>
         </div>
 
         <div className="nav-links">
-          <a href="#home">Home</a>
+
+          <a href="#home">
+            Home
+          </a>
 
           <button
             className="nav-link-button"
             onClick={() => setPage("my-trips")}
-        >
-          My Trips
-        </button>
+          >
+            My Trips
+          </button>
 
-          <a href="#bookings">Bookings</a>
+          <button
+            className="nav-link-button"
+            onClick={() => setPage("my-bookings")}
+          >
+            Bookings
+          </button>
 
-          <a href="#agencies">Agencies</a>
+          <button
+            className="nav-link-button"
+            onClick={() => setPage("agency-dashboard")}
+          >
+            Agencies
+          </button>
+
         </div>
 
-        <button className="login-btn">
-          Login
-        </button>
+        {user ? (
+          <button
+            className="login-btn"
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              setUser(null);
+              setPage("home");
+            }}
+          >
+            Logout
+          </button>
+        ) : (
+          <button
+            className="login-btn"
+            onClick={() => setPage("login")}
+          >
+            Login
+          </button>
+        )}
+
       </nav>
 
       <main>
-        <section className="hero" id="home">
+
+        <section
+          className="hero"
+          id="home"
+        >
+
           <div className="hero-content">
+
             <p className="tagline">
               BUS & MINIBUS RENTAL MARKETPLACE
             </p>
@@ -144,16 +258,17 @@ if (page === "my-trips") {
             </h1>
 
             <p className="hero-text">
-              Post your travel requirements and receive competitive
-              bids from verified bus operators.
+              Post your travel requirements and receive
+              competitive bids from verified bus operators.
             </p>
 
             <div className="hero-buttons">
+
               <button
                 className="primary-btn"
                 onClick={() => setPage("find-bus")}
               >
-               Find a Bus
+                Find a Bus
               </button>
 
               <button
@@ -162,13 +277,20 @@ if (page === "my-trips") {
               >
                 Post a Trip
               </button>
+
             </div>
+
           </div>
 
           <div className="hero-card">
-            <div className="card-icon">🚌</div>
 
-            <h3>Reverse Bidding</h3>
+            <div className="card-icon">
+              🚌
+            </div>
+
+            <h3>
+              Reverse Bidding
+            </h3>
 
             <p>
               Let verified travel agencies compete to offer you
@@ -176,6 +298,7 @@ if (page === "my-trips") {
             </p>
 
             <div className="card-stats">
+
               <div>
                 <strong>100+</strong>
                 <small>Operators</small>
@@ -190,62 +313,96 @@ if (page === "my-trips") {
                 <strong>₹</strong>
                 <small>Best Price</small>
               </div>
+
             </div>
+
           </div>
+
         </section>
 
         <section className="features">
+
           <div className="section-heading">
-            <p className="tagline">HOW IT WORKS</p>
+
+            <p className="tagline">
+              HOW IT WORKS
+            </p>
 
             <h2>
               Rent a bus in three simple steps
             </h2>
+
           </div>
 
           <div className="feature-grid">
-            <div className="feature-card">
-              <div className="feature-number">01</div>
 
-              <h3>Post your trip</h3>
+            <div className="feature-card">
+
+              <div className="feature-number">
+                01
+              </div>
+
+              <h3>
+                Post your trip
+              </h3>
 
               <p>
-                Tell us your pickup location, destination, dates,
-                passengers and requirements.
+                Tell us your pickup location, destination,
+                dates, passengers and requirements.
               </p>
+
             </div>
 
             <div className="feature-card">
-              <div className="feature-number">02</div>
 
-              <h3>Receive bids</h3>
+              <div className="feature-number">
+                02
+              </div>
+
+              <h3>
+                Receive bids
+              </h3>
 
               <p>
-                Verified bus operators compete by submitting their
-                best prices for your trip.
+                Verified bus operators compete by submitting
+                their best prices for your trip.
               </p>
+
             </div>
 
             <div className="feature-card">
-              <div className="feature-number">03</div>
 
-              <h3>Choose & book</h3>
+              <div className="feature-number">
+                03
+              </div>
+
+              <h3>
+                Choose & book
+              </h3>
 
               <p>
-                Compare the available bids and select the operator
-                that works best for you.
+                Compare the available bids and select the
+                operator that works best for you.
               </p>
+
             </div>
+
           </div>
+
         </section>
 
         <section className="cta">
+
           <div>
-            <p className="tagline">READY TO TRAVEL?</p>
+
+            <p className="tagline">
+              READY TO TRAVEL?
+            </p>
 
             <h2>
               Get the best bus for your journey.
             </h2>
+
           </div>
 
           <button
@@ -254,10 +411,13 @@ if (page === "my-trips") {
           >
             Post a Trip
           </button>
+
         </section>
+
       </main>
 
       <footer>
+
         <div className="logo">
           Bus<span>Market</span>
         </div>
@@ -265,7 +425,9 @@ if (page === "my-trips") {
         <p>
           Bus & Minibus Rental Marketplace
         </p>
+
       </footer>
+
     </div>
   );
 }
