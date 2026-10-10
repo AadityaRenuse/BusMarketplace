@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import "./App.css";
 
@@ -7,6 +8,7 @@ import MyTrips from "./pages/MyTrips";
 import ViewBids from "./pages/ViewBids";
 import MyBookings from "./pages/MyBookings";
 import AgencyDashboard from "./pages/AgencyDashboard";
+import MyBuses from "./pages/MyBuses";
 import Login from "./pages/Login";
 
 function App() {
@@ -171,7 +173,31 @@ function App() {
           </button>
         </nav>
 
-        <AgencyDashboard />
+        <AgencyDashboard
+          onMyBuses={() => setPage("my-buses")}
+        />
+      </div>
+    );
+  }
+
+  // MY BUSES
+  if (page === "my-buses") {
+    return (
+      <div>
+        <nav className="navbar">
+          <div className="logo">
+            Bus<span>Market</span>
+          </div>
+
+          <button
+            className="login-btn"
+            onClick={() => setPage("agency-dashboard")}
+          >
+            ← Back to Agency Dashboard
+          </button>
+        </nav>
+
+        <MyBuses />
       </div>
     );
   }

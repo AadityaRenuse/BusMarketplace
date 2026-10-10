@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import "./AgencyDashboard.css";
 
-function AgencyDashboard() {
+function AgencyDashboard({ onMyBuses }) {
   const [trips, setTrips] = useState([]);
   const [bids, setBids] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -230,6 +230,16 @@ function AgencyDashboard() {
         >
           My Bids
         </button>
+
+
+
+        <button
+          className="dashboard-nav-btn"
+          onClick={onMyBuses}
+        >
+          My Buses
+        </button>
+
 
       </div>
 

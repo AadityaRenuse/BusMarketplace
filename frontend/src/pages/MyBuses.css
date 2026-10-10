@@ -1,0 +1,292 @@
+.my-buses-page {
+  min-height: calc(100vh - 76px);
+  padding: 70px 7%;
+  background: #f7f8fc;
+}
+
+.my-buses-header {
+  max-width: 700px;
+  margin: 0 auto 35px;
+  text-align: center;
+}
+
+.my-buses-header h1 {
+  margin: 0 0 15px;
+  font-size: 42px;
+}
+
+.my-buses-header p:last-child {
+  color: #687386;
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* Add Bus Button */
+
+.my-buses-actions {
+  max-width: 1000px;
+  margin: 0 auto 25px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.add-bus-btn {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.add-bus-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Bus Form */
+
+.bus-form {
+  max-width: 1000px;
+  margin: 0 auto 35px;
+  padding: 30px;
+  background: white;
+  border: 1px solid #e7eaf0;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(30, 50, 90, 0.07);
+}
+
+.bus-form h2 {
+  margin: 0 0 25px;
+  font-size: 26px;
+}
+
+.bus-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 20px;
+}
+
+.form-field label {
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.form-field input,
+.form-field select,
+.form-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 13px;
+  border: 1px solid #d9deea;
+  border-radius: 8px;
+  background: white;
+  color: #1f2937;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+.form-field textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.save-bus-btn {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.save-bus-btn:hover {
+  background: #1d4ed8;
+}
+
+/* Messages */
+
+.buses-message {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 20px;
+  text-align: center;
+  background: white;
+  border: 1px solid #e7eaf0;
+  border-radius: 12px;
+  color: #687386;
+}
+
+.buses-message.error {
+  color: #dc2626;
+}
+
+/* Bus Cards */
+
+.buses-grid {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 25px;
+}
+
+.bus-card {
+  padding: 28px;
+  background: white;
+  border: 1px solid #e7eaf0;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(30, 50, 90, 0.07);
+}
+
+.bus-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.bus-id {
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.bus-card h2 {
+  margin: 7px 0 25px;
+  font-size: 23px;
+}
+
+.bus-ac-status {
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* Bus Information */
+
+.bus-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.bus-info div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 13px;
+  background: #f7f8fc;
+  border-radius: 8px;
+}
+
+.bus-info span,
+.bus-description span {
+  color: #7a8393;
+  font-size: 12px;
+}
+
+.bus-info strong {
+  font-size: 13px;
+}
+
+/* Description */
+
+.bus-description {
+  padding: 15px;
+  margin-bottom: 20px;
+  background: #f7f8fc;
+  border-radius: 8px;
+}
+
+.bus-description p {
+  margin: 7px 0 0;
+  color: #4b5563;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Card Actions */
+
+.bus-card-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.edit-bus-btn,
+.delete-bus-btn {
+  padding: 11px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.edit-bus-btn {
+  border: 1px solid #2563eb;
+  background: white;
+  color: #2563eb;
+}
+
+.edit-bus-btn:hover {
+  background: #eff6ff;
+}
+
+.delete-bus-btn {
+  border: 1px solid #dc2626;
+  background: white;
+  color: #dc2626;
+}
+
+.delete-bus-btn:hover {
+  background: #fef2f2;
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+  .bus-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .buses-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .bus-card-header {
+    flex-direction: column;
+  }
+
+  .my-buses-actions {
+    justify-content: stretch;
+  }
+
+  .add-bus-btn {
+    width: 100%;
+  }
+
+  .bus-info {
+    grid-template-columns: 1fr;
+  }
+}

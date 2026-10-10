@@ -1,3 +1,4 @@
+
 package com.busmarketplace.backend.controller;
 
 import com.busmarketplace.backend.entity.Agency;
@@ -32,6 +33,10 @@ public class BusController {
         this.agencyRepository = agencyRepository;
     }
 
+    /*
+     * Get all buses.
+     * Used for the public marketplace.
+     */
     @GetMapping
     public List<Bus> getAllBuses() {
         return busRepository.findAll();
@@ -55,9 +60,6 @@ public class BusController {
                     .body("User not found");
         }
 
-        /*
-         * Only agencies can access their agency buses.
-         */
         if (!"AGENCY".equalsIgnoreCase(user.getRole())) {
             return ResponseEntity.status(403)
                     .body("Only agencies can view agency buses");
@@ -77,50 +79,203 @@ public class BusController {
         );
     }
 
+    /*
+     * Get a specific bus.
+     * Public endpoint because buses may be displayed
+     * in the marketplace.
+     */
     @GetMapping("/{id}")
-    public ResponseEntity<Bus> getBusById(@PathVariable Long id) {
+    public ResponseEntity<Bus> getBusById(
+            @PathVariable Long id) {
+
         return busRepository.findById(id)
                 .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseGet(() ->
+                        ResponseEntity.notFound().build()
+                );
     }
 
+    /*
+     * Create a bus for the logged-in agency.
+     *
+     * IMPORTANT:
+     * agencyId is NOT trusted from the frontend.
+     */
     @PostMapping
-    public Bus createBus(@RequestBody Bus bus) {
-        return busRepository.save(bus);
+    public ResponseEntity<?> createBus(
+            @RequestBody Bus bus,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User user = userRepository
+                .findByEmail(email)
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(401)
+                    .body("User not found");
+        }
+
+        if (!"AGENCY".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.status(403)
+                    .body("Only agencies can add buses");
+        }
+
+        Agency agency = agencyRepository
+                .findByUserId(user.getUserId())
+                .orElse(null);
+
+        if (agency == null) {
+            return ResponseEntity.status(404)
+                    .body("Agency profile not found");
+        }
+
+        bus.setAgencyId(agency.getAgencyId());
+
+        return ResponseEntity.ok(
+                busRepository.save(bus)
+        );
     }
 
+    /*
+     * Update a bus.
+     *
+     * Only the agency that owns the bus can update it.
+     */
     @PutMapping("/{id}")
-    public Bus updateBus(
+    public ResponseEntity<?> updateBus(
             @PathVariable Long id,
-            @RequestBody Bus updatedBus) {
+            @RequestBody Bus updatedBus,
+            Authentication authentication) {
 
-        Bus existingBus = busRepository.findById(id)
+        String email = authentication.getName();
+
+        User user = userRepository
+                .findByEmail(email)
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(401)
+                    .body("User not found");
+        }
+
+        if (!"AGENCY".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.status(403)
+                    .body("Only agencies can update buses");
+        }
+
+        Agency agency = agencyRepository
+                .findByUserId(user.getUserId())
+                .orElse(null);
+
+        if (agency == null) {
+            return ResponseEntity.status(404)
+                    .body("Agency profile not found");
+        }
+
+        Bus existingBus = busRepository
+                .findById(id)
                 .orElse(null);
 
         if (existingBus == null) {
-            return null;
+            return ResponseEntity.notFound().build();
         }
 
-        existingBus.setAgencyId(updatedBus.getAgencyId());
-        existingBus.setBusName(updatedBus.getBusName());
+        if (!existingBus.getAgencyId()
+                .equals(agency.getAgencyId())) {
+
+            return ResponseEntity.status(403)
+                    .body("You can only update your own buses");
+        }
+
+        existingBus.setBusName(
+                updatedBus.getBusName()
+        );
+
         existingBus.setRegistrationNumber(
                 updatedBus.getRegistrationNumber()
         );
-        existingBus.setCapacity(updatedBus.getCapacity());
-        existingBus.setBusType(updatedBus.getBusType());
-        existingBus.setIsAc(updatedBus.getIsAc());
+
+        existingBus.setCapacity(
+                updatedBus.getCapacity()
+        );
+
+        existingBus.setBusType(
+                updatedBus.getBusType()
+        );
+
+        existingBus.setIsAc(
+                updatedBus.getIsAc()
+        );
+
         existingBus.setPricePerTrip(
                 updatedBus.getPricePerTrip()
         );
+
         existingBus.setDescription(
                 updatedBus.getDescription()
         );
 
-        return busRepository.save(existingBus);
+        return ResponseEntity.ok(
+                busRepository.save(existingBus)
+        );
     }
 
+    /*
+     * Delete a bus.
+     *
+     * Only the agency that owns the bus can delete it.
+     */
     @DeleteMapping("/{id}")
-    public void deleteBus(@PathVariable Long id) {
-        busRepository.deleteById(id);
+    public ResponseEntity<?> deleteBus(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User user = userRepository
+                .findByEmail(email)
+                .orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(401)
+                    .body("User not found");
+        }
+
+        if (!"AGENCY".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.status(403)
+                    .body("Only agencies can delete buses");
+        }
+
+        Agency agency = agencyRepository
+                .findByUserId(user.getUserId())
+                .orElse(null);
+
+        if (agency == null) {
+            return ResponseEntity.status(404)
+                    .body("Agency profile not found");
+        }
+
+        Bus existingBus = busRepository
+                .findById(id)
+                .orElse(null);
+
+        if (existingBus == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!existingBus.getAgencyId()
+                .equals(agency.getAgencyId())) {
+
+            return ResponseEntity.status(403)
+                    .body("You can only delete your own buses");
+        }
+
+        busRepository.delete(existingBus);
+
+        return ResponseEntity.ok(
+                "Bus deleted successfully"
+        );
     }
 }
