@@ -79,7 +79,7 @@ public class BidController {
         );
     }
 
-    // GET BIDS FOR A CUSTOMER'S TRIP
+    // GET BIDS FOR A CUSTOMER'S OWN TRIP
     @GetMapping("/my-trip/{tripRequestId}")
     public ResponseEntity<?> getMyTripBids(
             @PathVariable Long tripRequestId,
@@ -94,6 +94,11 @@ public class BidController {
                     .body("User not found");
         }
 
+        if (!"CUSTOMER".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.status(403)
+                    .body("Only customers can view trip bids");
+        }
+
         TripRequest tripRequest = tripRequestRepository
                 .findById(tripRequestId)
                 .orElse(null);
@@ -102,7 +107,9 @@ public class BidController {
             return ResponseEntity.notFound().build();
         }
 
-        if (!tripRequest.getCustomerId().equals(user.getUserId())) {
+        if (tripRequest.getCustomerId() == null ||
+                !tripRequest.getCustomerId().equals(user.getUserId())) {
+
             return ResponseEntity.status(403)
                     .body("You are not allowed to view bids for this trip");
         }
@@ -140,6 +147,17 @@ public class BidController {
         if (agency == null) {
             return ResponseEntity.status(404)
                     .body("Agency profile not found");
+        }
+
+        if (bid.getTripRequestId() == null) {
+            return ResponseEntity.badRequest()
+                    .body("Trip request ID is required");
+        }
+
+        if (bid.getAmount() == null ||
+                bid.getAmount().compareTo(java.math.BigDecimal.ZERO) <= 0) {
+            return ResponseEntity.badRequest()
+                    .body("A valid bid amount is required");
         }
 
         TripRequest tripRequest = tripRequestRepository
@@ -189,7 +207,9 @@ public class BidController {
                     .body("Only customers can accept bids");
         }
 
-        if (!"ACCEPTED".equalsIgnoreCase(updatedBid.getStatus())) {
+        if (updatedBid.getStatus() == null ||
+                !"ACCEPTED".equalsIgnoreCase(updatedBid.getStatus())) {
+
             return ResponseEntity.badRequest()
                     .body("This endpoint only supports bid acceptance");
         }
@@ -208,7 +228,9 @@ public class BidController {
             return ResponseEntity.notFound().build();
         }
 
-        if (!tripRequest.getCustomerId().equals(user.getUserId())) {
+        if (tripRequest.getCustomerId() == null ||
+                !tripRequest.getCustomerId().equals(user.getUserId())) {
+
             return ResponseEntity.status(403)
                     .body("You are not allowed to accept bids for this trip");
         }
@@ -228,8 +250,8 @@ public class BidController {
         Bid acceptedBid = bidRepository.save(bid);
 
         // Reject all other pending bids for this trip.
-        List<Bid> tripBids = bidRepository
-                .findByTripRequestId(bid.getTripRequestId());
+        List<Bid> tripBids =
+                bidRepository.findByTripRequestId(bid.getTripRequestId());
 
         for (Bid otherBid : tripBids) {
 
@@ -302,7 +324,9 @@ public class BidController {
             return ResponseEntity.notFound().build();
         }
 
-        if (!tripRequest.getCustomerId().equals(user.getUserId())) {
+        if (tripRequest.getCustomerId() == null ||
+                !tripRequest.getCustomerId().equals(user.getUserId())) {
+
             return ResponseEntity.status(403)
                     .body("You are not allowed to reject this bid");
         }
@@ -360,7 +384,9 @@ public class BidController {
             return ResponseEntity.notFound().build();
         }
 
-        if (!bid.getAgencyId().equals(agency.getAgencyId())) {
+        if (bid.getAgencyId() == null ||
+                !bid.getAgencyId().equals(agency.getAgencyId())) {
+
             return ResponseEntity.status(403)
                     .body("You cannot delete another agency's bid");
         }
