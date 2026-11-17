@@ -177,3 +177,47 @@
     flex-direction: column;
   }
 }
+
+
+.bid-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.bid-actions button {
+  flex: 1;
+}
+
+.reject-bid-btn {
+  background: #fff;
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.reject-bid-btn:hover {
+  background: #dc2626;
+  color: #fff;
+}
+
+.reject-bid-btn:disabled,
+.accept-bid-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.rejected-label {
+  margin-top: 16px;
+  padding: 12px;
+  background: #fef2f2;
+  color: #dc2626;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
+}

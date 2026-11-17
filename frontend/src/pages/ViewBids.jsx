@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import "./ViewBids.css";
 
@@ -6,8 +7,9 @@ function ViewBids({ tripRequestId, tripStatus, onBack }) {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [acceptingBid, setAcceptingBid] = useState(null);
+  const [rejectingBid, setRejectingBid] = useState(null);
 
-  useEffect(() => {
+  const loadBids = async () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -16,30 +18,33 @@ function ViewBids({ tripRequestId, tripStatus, onBack }) {
       return;
     }
 
-    fetch(
-      `http://localhost:8080/api/bids/my-trip/${tripRequestId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    )
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Failed to fetch bids");
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/bids/my-trip/${tripRequestId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
+      );
 
-        return response.json();
-      })
-      .then((data) => {
-        setBids(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error(error);
-        setMessage("Could not load bids.");
-        setLoading(false);
-      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch bids");
+      }
+
+      const data = await response.json();
+      setBids(data);
+      setMessage("");
+    } catch (error) {
+      console.error(error);
+      setMessage("Could not load bids.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadBids();
   }, [tripRequestId]);
 
   const handleAcceptBid = async (bid) => {
@@ -63,66 +68,94 @@ function ViewBids({ tripRequestId, tripStatus, onBack }) {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
-            tripRequestId: bid.tripRequestId,
-            agencyId: bid.agencyId,
-            busId: bid.busId,
-            amount: bid.amount,
-            message: bid.message,
             status: "ACCEPTED",
           }),
         }
       );
 
       if (!response.ok) {
-        throw new Error("Failed to accept bid");
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to accept bid");
       }
 
-      const updatedBid = await response.json();
+      setMessage(`Bid #${bid.bidId} accepted successfully!`);
 
-      setBids((previousBids) =>
-        previousBids.map((item) =>
-          item.bidId === updatedBid.bidId
-            ? updatedBid
-            : item
-        )
-      );
-
-      setMessage(
-        `Bid #${updatedBid.bidId} accepted successfully!`
-      );
+      await loadBids();
     } catch (error) {
       console.error(error);
-      setMessage("Could not accept the bid.");
+      setMessage(error.message || "Could not accept the bid.");
     } finally {
       setAcceptingBid(null);
     }
   };
 
+  const handleRejectBid = async (bid) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setMessage("Please login to reject a bid.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to reject Bid #${bid.bidId}?`
+    );
+
+    if (!confirmed) return;
+
+    setRejectingBid(bid.bidId);
+    setMessage("");
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/bids/${bid.bidId}/reject`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to reject bid");
+      }
+
+      const rejectedBid = await response.json();
+
+      setBids((previousBids) =>
+        previousBids.map((item) =>
+          item.bidId === rejectedBid.bidId
+            ? rejectedBid
+            : item
+        )
+      );
+
+      setMessage(`Bid #${rejectedBid.bidId} rejected successfully!`);
+    } catch (error) {
+      console.error(error);
+      setMessage(error.message || "Could not reject the bid.");
+    } finally {
+      setRejectingBid(null);
+    }
+  };
+
   return (
     <div className="view-bids-page">
-
       <div className="view-bids-header">
-
-        <button
-          className="back-btn"
-          onClick={onBack}
-        >
+        <button className="back-btn" onClick={onBack}>
           ← Back to My Trips
         </button>
 
-        <p className="tagline">
-          COMPETING OFFERS
-        </p>
+        <p className="tagline">COMPETING OFFERS</p>
 
-        <h1>
-          Available Bids
-        </h1>
+        <h1>Available Bids</h1>
 
         <p>
           Compare offers from bus operators and choose the one
           that works best for your trip.
         </p>
-
       </div>
 
       {loading && (
@@ -132,38 +165,27 @@ function ViewBids({ tripRequestId, tripStatus, onBack }) {
       )}
 
       {message && (
-        <div className="bids-message error">
+        <div className="bids-message">
           {message}
         </div>
       )}
 
-      {!loading && !message && bids.length === 0 && (
+      {!loading && bids.length === 0 && (
         <div className="bids-message">
           No bids have been submitted for this trip yet.
         </div>
       )}
 
       <div className="bids-grid">
-
         {bids.map((bid) => (
-
-          <div
-            className="bid-card"
-            key={bid.bidId}
-          >
-
+          <div className="bid-card" key={bid.bidId}>
             <div className="bid-card-header">
-
               <div>
-
                 <span className="bid-id">
                   Bid #{bid.bidId}
                 </span>
 
-                <h2>
-                  Agency #{bid.agencyId}
-                </h2>
-
+                <h2>Agency #{bid.agencyId}</h2>
               </div>
 
               <span
@@ -171,89 +193,86 @@ function ViewBids({ tripRequestId, tripStatus, onBack }) {
               >
                 {bid.status}
               </span>
-
             </div>
 
             <div className="bid-price">
-
-              <span>
-                Bid Amount
-              </span>
-
+              <span>Bid Amount</span>
               <strong>
-                ₹{bid.amount}
+                ₹{Number(bid.amount).toLocaleString("en-IN")}
               </strong>
-
             </div>
 
             <div className="bid-details">
-
               <div>
-                <span>
-                  Bus
-                </span>
-
-                <strong>
-                  Bus #{bid.busId}
-                </strong>
+                <span>Bus</span>
+                <strong>Bus #{bid.busId}</strong>
               </div>
 
               <div>
-                <span>
-                  Trip Request
-                </span>
-
-                <strong>
-                  #{bid.tripRequestId}
-                </strong>
+                <span>Trip Request</span>
+                <strong>#{bid.tripRequestId}</strong>
               </div>
-
             </div>
 
             <div className="bid-message">
-
-              <span>
-                Operator Message
-              </span>
-
+              <span>Operator Message</span>
               <p>
                 {bid.message || "No message provided."}
               </p>
-
             </div>
 
-              {bid.status === "PENDING" && tripStatus !== "BOOKED" && (
-                <button
-                  className="accept-bid-btn"
-                  onClick={() => handleAcceptBid(bid)}
-                  disabled={acceptingBid === bid.bidId}
-                >
-                  {acceptingBid === bid.bidId ? "Accepting..." : "Accept Bid"}
-                </button>
+            {bid.status === "PENDING" &&
+              tripStatus !== "BOOKED" && (
+                <div className="bid-actions">
+                  <button
+                    className="accept-bid-btn"
+                    onClick={() => handleAcceptBid(bid)}
+                    disabled={
+                      acceptingBid !== null ||
+                      rejectingBid !== null
+                    }
+                  >
+                    {acceptingBid === bid.bidId
+                      ? "Accepting..."
+                      : "Accept Bid"}
+                  </button>
+
+                  <button
+                    className="reject-bid-btn"
+                    onClick={() => handleRejectBid(bid)}
+                    disabled={
+                      acceptingBid !== null ||
+                      rejectingBid !== null
+                    }
+                  >
+                    {rejectingBid === bid.bidId
+                      ? "Rejecting..."
+                      : "Reject Bid"}
+                  </button>
+                </div>
               )}
 
-
-              {bid.status === "PENDING" && tripStatus === "BOOKED" && (
-                  <div className="accepted-label">
-                    Trip Already Booked
-                  </div>
-                )}
-
+            {bid.status === "PENDING" &&
+              tripStatus === "BOOKED" && (
+                <div className="accepted-label">
+                  Trip Already Booked
+                </div>
+              )}
 
             {bid.status === "ACCEPTED" && (
-
               <div className="accepted-label">
                 ✓ Accepted Bid
               </div>
-
             )}
 
+            {bid.status === "REJECTED" && (
+              <div className="rejected-label">
+                ✕ Rejected Bid
+              </div>
+            )}
           </div>
-
         ))}
-
       </div>
-
     </div>
   );
 }
