@@ -46,20 +46,6 @@ public class BidController {
         this.agencyRepository = agencyRepository;
     }
 
-    // GET ALL BIDS
-    @GetMapping
-    public List<Bid> getAllBids() {
-        return bidRepository.findAll();
-    }
-
-    // GET BID BY ID
-    @GetMapping("/{id}")
-    public ResponseEntity<Bid> getBidById(@PathVariable Long id) {
-        return bidRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
     // GET BIDS OF LOGGED-IN AGENCY
     @GetMapping("/my")
     public ResponseEntity<?> getMyBids(
@@ -339,8 +325,53 @@ public class BidController {
     }
 
     // DELETE BID
+    // Only the agency that submitted a pending bid can delete it.
     @DeleteMapping("/{id}")
-    public void deleteBid(@PathVariable Long id) {
-        bidRepository.deleteById(id);
+    public ResponseEntity<?> deleteBid(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email).orElse(null);
+
+        if (user == null) {
+            return ResponseEntity.status(401)
+                    .body("User not found");
+        }
+
+        if (!"AGENCY".equalsIgnoreCase(user.getRole())) {
+            return ResponseEntity.status(403)
+                    .body("Only agencies can delete their own bids");
+        }
+
+        Agency agency = agencyRepository
+                .findByUserId(user.getUserId())
+                .orElse(null);
+
+        if (agency == null) {
+            return ResponseEntity.status(404)
+                    .body("Agency profile not found");
+        }
+
+        Bid bid = bidRepository.findById(id).orElse(null);
+
+        if (bid == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (!bid.getAgencyId().equals(agency.getAgencyId())) {
+            return ResponseEntity.status(403)
+                    .body("You cannot delete another agency's bid");
+        }
+
+        if (!"PENDING".equalsIgnoreCase(bid.getStatus())) {
+            return ResponseEntity.badRequest()
+                    .body("Only pending bids can be deleted");
+        }
+
+        bidRepository.delete(bid);
+
+        return ResponseEntity.ok("Bid deleted successfully");
     }
 }

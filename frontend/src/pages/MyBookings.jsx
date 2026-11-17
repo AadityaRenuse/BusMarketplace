@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import "./MyBookings.css";
 
@@ -7,7 +8,19 @@ function MyBookings() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/bookings")
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setMessage("Please login to view your bookings.");
+      setLoading(false);
+      return;
+    }
+
+    fetch("http://localhost:8080/api/bookings/my", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch bookings");
@@ -16,12 +29,7 @@ function MyBookings() {
         return response.json();
       })
       .then((data) => {
-        // For now, show bookings belonging to customer 1
-        const customerBookings = data.filter(
-          (booking) => booking.customerId === 1
-        );
-
-        setBookings(customerBookings);
+        setBookings(data);
         setLoading(false);
       })
       .catch((error) => {
@@ -89,44 +97,34 @@ function MyBookings() {
             <div className="booking-info">
               <div>
                 <span>Agency</span>
-                <strong>
-                  Agency #{booking.agencyId}
-                </strong>
+                <strong>Agency #{booking.agencyId}</strong>
               </div>
 
               <div>
                 <span>Bus</span>
-                <strong>
-                  Bus #{booking.busId}
-                </strong>
+                <strong>Bus #{booking.busId}</strong>
               </div>
 
               <div>
                 <span>Amount</span>
                 <strong>
-                  ₹{booking.amount}
+                  ₹{Number(booking.amount).toLocaleString("en-IN")}
                 </strong>
               </div>
 
               <div>
                 <span>Booking Type</span>
-                <strong>
-                  {booking.bookingType}
-                </strong>
+                <strong>{booking.bookingType}</strong>
               </div>
 
               <div>
                 <span>Start Date</span>
-                <strong>
-                  {booking.startDate}
-                </strong>
+                <strong>{booking.startDate}</strong>
               </div>
 
               <div>
                 <span>End Date</span>
-                <strong>
-                  {booking.endDate}
-                </strong>
+                <strong>{booking.endDate}</strong>
               </div>
             </div>
 
@@ -134,9 +132,7 @@ function MyBookings() {
               <span>
                 Created:{" "}
                 {booking.createdAt
-                  ? new Date(
-                      booking.createdAt
-                    ).toLocaleString()
+                  ? new Date(booking.createdAt).toLocaleString()
                   : "N/A"}
               </span>
 

@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import "./FindBus.css";
 
@@ -8,25 +9,44 @@ function FindBus() {
   const [selectedBus, setSelectedBus] = useState(null);
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/buses")
-      .then((response) => {
+    const fetchBuses = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const response = await fetch(
+          "http://localhost:8080/api/buses",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
         if (!response.ok) {
-          throw new Error("Failed to fetch buses");
+          if (response.status === 401 || response.status === 403) {
+            throw new Error(
+              "Authentication failed. Please log out and log in again."
+            );
+          }
+
+          throw new Error(`Failed to fetch buses (${response.status})`);
         }
 
-        return response.json();
-      })
-      .then((data) => {
+        const data = await response.json();
+
         setBuses(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error(error);
+      } catch (error) {
+        console.error("Error loading buses:", error);
         setMessage(
-          "Could not load buses. Make sure the backend is running."
+          error.message || "Could not load buses. Please try again."
         );
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchBuses();
   }, []);
 
   return (
@@ -60,59 +80,59 @@ function FindBus() {
         </div>
       )}
 
-{selectedBus && (
-  <div className="selected-bus">
-    <div className="selected-bus-header">
-      <div>
-        <p className="tagline">BUS DETAILS</p>
-        <h2>{selectedBus.busName}</h2>
-      </div>
+      {selectedBus && (
+        <div className="selected-bus">
+          <div className="selected-bus-header">
+            <div>
+              <p className="tagline">BUS DETAILS</p>
+              <h2>{selectedBus.busName}</h2>
+            </div>
 
-      <button
-        className="close-details-btn"
-        onClick={() => setSelectedBus(null)}
-      >
-        ✕ Close
-      </button>
-    </div>
+            <button
+              className="close-details-btn"
+              onClick={() => setSelectedBus(null)}
+            >
+              ✕ Close
+            </button>
+          </div>
 
-    <div className="selected-bus-info">
-      <div>
-        <span>Bus Type</span>
-        <strong>{selectedBus.busType}</strong>
-      </div>
+          <div className="selected-bus-info">
+            <div>
+              <span>Bus Type</span>
+              <strong>{selectedBus.busType}</strong>
+            </div>
 
-      <div>
-        <span>Capacity</span>
-        <strong>{selectedBus.capacity} passengers</strong>
-      </div>
+            <div>
+              <span>Capacity</span>
+              <strong>{selectedBus.capacity} passengers</strong>
+            </div>
 
-      <div>
-        <span>AC</span>
-        <strong>{selectedBus.isAc ? "Yes" : "No"}</strong>
-      </div>
+            <div>
+              <span>AC</span>
+              <strong>{selectedBus.isAc ? "Yes" : "No"}</strong>
+            </div>
 
-      <div>
-        <span>Price per Trip</span>
-        <strong>₹{selectedBus.pricePerTrip}</strong>
-      </div>
+            <div>
+              <span>Price per Trip</span>
+              <strong>₹{selectedBus.pricePerTrip}</strong>
+            </div>
 
-      <div>
-        <span>Registration Number</span>
-        <strong>{selectedBus.registrationNumber}</strong>
-      </div>
+            <div>
+              <span>Registration Number</span>
+              <strong>{selectedBus.registrationNumber}</strong>
+            </div>
 
-      <div>
-        <span>Agency ID</span>
-        <strong>{selectedBus.agencyId}</strong>
-      </div>
-    </div>
+            <div>
+              <span>Agency ID</span>
+              <strong>{selectedBus.agencyId}</strong>
+            </div>
+          </div>
 
-    <p className="selected-bus-description">
-      {selectedBus.description}
-    </p>
-  </div>
-)}
+          <p className="selected-bus-description">
+            {selectedBus.description}
+          </p>
+        </div>
+      )}
 
       <div className="bus-grid">
         {buses.map((bus) => (
@@ -129,9 +149,7 @@ function FindBus() {
               <div className="bus-details">
                 <div>
                   <span>Type</span>
-                  <strong>
-                    {bus.busType || "Bus"}
-                  </strong>
+                  <strong>{bus.busType || "Bus"}</strong>
                 </div>
 
                 <div>
@@ -152,9 +170,9 @@ function FindBus() {
               <button
                 className="view-bus-btn"
                 onClick={() => setSelectedBus(bus)}
-                >       
-                 View Details
-            </button>
+              >
+                View Details
+              </button>
             </div>
           </div>
         ))}

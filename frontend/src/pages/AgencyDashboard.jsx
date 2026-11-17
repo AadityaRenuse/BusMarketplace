@@ -15,11 +15,21 @@ function AgencyDashboard({ onMyBuses }) {
   const [bidMessage, setBidMessage] = useState("");
   const [activeSection, setActiveSection] = useState("trips");
 
-  /*
-   * Load open trips
-   */
+  // Load open trips
   useEffect(() => {
-    fetch("http://localhost:8080/api/trip-requests")
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setMessage("Please login as an agency.");
+      setLoading(false);
+      return;
+    }
+
+    fetch("http://localhost:8080/api/trip-requests", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch trips");
@@ -36,15 +46,13 @@ function AgencyDashboard({ onMyBuses }) {
         setLoading(false);
       })
       .catch((error) => {
-        console.error(error);
+        console.error("Available trips error:", error);
         setMessage("Could not load available trips.");
         setLoading(false);
       });
   }, []);
 
-  /*
-   * Load only buses belonging to the logged-in agency
-   */
+  // Load only buses belonging to the logged-in agency
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -72,9 +80,7 @@ function AgencyDashboard({ onMyBuses }) {
       });
   }, []);
 
-  /*
-   * Load agency's own bids
-   */
+  // Load agency's own bids
   const loadMyBids = () => {
     const token = localStorage.getItem("token");
 
@@ -107,9 +113,7 @@ function AgencyDashboard({ onMyBuses }) {
       });
   };
 
-  /*
-   * Submit bid
-   */
+  // Submit bid
   const submitBid = () => {
     const token = localStorage.getItem("token");
 
@@ -123,8 +127,8 @@ function AgencyDashboard({ onMyBuses }) {
       return;
     }
 
-    if (!bidAmount) {
-      alert("Please enter a bid amount.");
+    if (!bidAmount || Number(bidAmount) <= 0) {
+      alert("Please enter a valid bid amount.");
       return;
     }
 
@@ -161,7 +165,6 @@ function AgencyDashboard({ onMyBuses }) {
         setBidAmount("");
         setBidMessage("");
 
-        // Refresh My Bids if needed
         loadMyBids();
       })
       .catch((error) => {
@@ -170,17 +173,13 @@ function AgencyDashboard({ onMyBuses }) {
       });
   };
 
-  /*
-   * Open My Bids section
-   */
+  // Open My Bids section
   const showMyBids = () => {
     setActiveSection("bids");
     loadMyBids();
   };
 
-  /*
-   * Open Available Trips section
-   */
+  // Open Available Trips section
   const showAvailableTrips = () => {
     setActiveSection("trips");
   };
@@ -189,7 +188,6 @@ function AgencyDashboard({ onMyBuses }) {
     <div className="agency-dashboard">
 
       <div className="agency-header">
-
         <p className="tagline">
           AGENCY MARKETPLACE
         </p>
@@ -202,11 +200,9 @@ function AgencyDashboard({ onMyBuses }) {
           Manage available trips and track the bids submitted
           by your agency.
         </p>
-
       </div>
 
       {/* Dashboard navigation */}
-
       <div className="agency-dashboard-nav">
 
         <button
@@ -231,8 +227,6 @@ function AgencyDashboard({ onMyBuses }) {
           My Bids
         </button>
 
-
-
         <button
           className="dashboard-nav-btn"
           onClick={onMyBuses}
@@ -240,13 +234,9 @@ function AgencyDashboard({ onMyBuses }) {
           My Buses
         </button>
 
-
       </div>
 
-      {/* ========================= */}
       {/* AVAILABLE TRIPS */}
-      {/* ========================= */}
-
       {activeSection === "trips" && (
         <>
           {loading && (
@@ -455,10 +445,7 @@ function AgencyDashboard({ onMyBuses }) {
         </>
       )}
 
-      {/* ========================= */}
       {/* MY BIDS */}
-      {/* ========================= */}
-
       {activeSection === "bids" && (
         <>
           <div className="my-bids-header">
